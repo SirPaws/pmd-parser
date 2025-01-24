@@ -7,33 +7,23 @@ edition = "2021"
 [lib]
 name = "pmdlib"
 crate-type = ["cdylib"]
-path = "src/main.rs"
 default-features = false
-requires-features = ["wasm"]
+# requires-features = ["wasm"]
 
 [[bin]]
 name = "pmd-parser"
 default = true
 
-
 [features]
-default = ["html", "rss", "text"]
+default = ["html", "rss", "text", "pdf"]
 html = ["exe"]
 pdf  = ["mock_pdf"]
 # pdf  = ["dep:headless_chrome"]
 text = []
 rss  = ["exe"]
-wasm = ["dep:wasm-bindgen", "text"]
+wasm = ["dep:wasm-bindgen", "dep:console_error_panic_hook", "text"]
 mock_pdf = []
 exe  = ["dep:clap", "dep:color-print", "dep:reqwest", "dep:tempfile", "dep:tokio"]
-
-# anyhow
-# chrono
-# regex
-# serde
-# serde_json
-# serde_yaml
-
 
 [dependencies]
 anyhow = "1.0.70"
@@ -49,6 +39,8 @@ serde_yaml = "0.9.34"
 tempfile = { version = "3.10.1", optional = true }
 tokio = { version = "1.39.3", features = ["full"], optional = true }
 wasm-bindgen = { version = "0.2.93", optional = true }
+# web-sys = { version = "0.3.70", features = ["console"], optional = true }
+console_error_panic_hook = { version = "0.1.7", optional = true }
 
 
 

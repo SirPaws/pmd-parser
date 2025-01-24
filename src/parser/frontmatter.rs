@@ -17,6 +17,10 @@ impl Frontmatter {
             data: BTreeMap::new()
         }
     }
+    pub fn new_raw(text: String, data: BTreeMap<String, Value>) -> Self {
+        Self { text, data }
+    }
+
     pub fn has<S: AsRef<str>>(&self, key: S) -> bool {
         self.data.contains_key(key.as_ref())
     }
@@ -24,6 +28,28 @@ impl Frontmatter {
     pub fn keys(&self) -> Keys<'_, String, Value> {
         self.data.keys()
     }
+
+    pub fn has_joined_key<S: AsRef<str>>(&self, joined_key: S) -> bool {
+        for key in self.keys() {
+            let key = key.trim().replace('_', "-").replace(' ', "-");
+            if key == joined_key.as_ref() {
+                return true;
+            }
+        }
+        false
+    }
+
+    pub fn get_with_joined_key<S: AsRef<str>>(&self, joined_key: S) -> &Value {
+            for key in self.keys() {
+                let key = key.trim().replace('_', "-").replace(' ', "-");
+                if &key == joined_key.as_ref() {
+                    return &self[key];
+                }
+            }
+        &Value::Null
+    }
+
+
 /*
     pub fn values(&self) -> Values<'_, String, Value>{
         self.data.values()
@@ -150,12 +176,12 @@ pub fn parse_frontmatter(text: &str) -> (Option<Frontmatter>, &str) {
 
 #[cfg(test)]
 mod tests {
-    use crate::frontmatter::*;
+    use super::*;
 
     #[test]
     fn basic_parsing() {
         let (fm, remaining) = parse_frontmatter("---\n---");
-        assert_eq!(fm, Some(Frontmatter{ text: "".into(), data: BTreeMap::new()}));
+        assert_eq!(fm, Some(Frontmatter::new_raw("".into(), BTreeMap::new())));
         assert_eq!(remaining, "");
     }
     
@@ -169,13 +195,13 @@ another : element
 "##;
         let (fm, remaining) = parse_frontmatter(text);
         assert_eq!(fm, 
-            Some(Frontmatter{ 
-                text: "this: is an element\nanother : element".into(), 
-                data: BTreeMap::from([
+            Some(Frontmatter::new_raw(
+                "this: is an element\nanother : element".into(), 
+                BTreeMap::from([
                     ("this".into(), Value::String("is an element".into())),
                     ("another".into(), Value::String("element".into())),
                 ])
-            }));
+            )));
         assert_eq!(remaining, "and this would be the remaining text\n");
     }
 
@@ -193,9 +219,9 @@ another : element
 
         let (fm, remaining) = parse_frontmatter(text);
         assert_eq!(fm, 
-            Some(Frontmatter{ 
-                text: "this: %p is a penis\nand-a-list: \n    - %p\n    - last\nanother : element".into(), 
-                data: BTreeMap::from([
+            Some(Frontmatter::new_raw(
+                "this: %p is a penis\nand-a-list: \n    - %p\n    - last\nanother : element".into(), 
+                BTreeMap::from([
                     ("this".into(), Value::String("%p is a penis".into())),
                     ("and-a-list".into(), Value::Sequence(vec![
                         Value::String("%p".into()),
@@ -203,7 +229,7 @@ another : element
                     ])),
                     ("another".into(), Value::String("element".into())),
                 ])
-            }));
+            )));
         assert_eq!(remaining, "and this would be the remaining text\n");
     }
 }

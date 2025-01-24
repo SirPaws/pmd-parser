@@ -4,7 +4,7 @@ use anyhow::{anyhow, Context, Result};
 #[cfg(not(feature = "wasm"))]
 use color_print::cprintln;
 
-use crate::structured_base_parser::{peek_next_token, eat_token, parse_value};
+use super::structured_base_parser::{peek_next_token, eat_token, parse_value};
 
 #[derive(Debug, Clone, PartialEq)]
 pub enum Month {
@@ -666,7 +666,7 @@ pub fn to_bibliography(value: &ReferenceDefinition) -> String {
 
 #[cfg(test)]
 mod tests {
-    use crate::*;
+    use super::*;
 
     #[test]
     fn test_parse_reference_declaration_simple() {

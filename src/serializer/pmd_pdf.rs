@@ -17,6 +17,7 @@ pub struct PMDPDFSerializer {
     bibliography_id: String,
 }
 
+
 impl PMDSharedHTMLSerializer for PMDPDFSerializer {
     const LINK_ELEMENTS: bool = false;
     const POPUPS: bool = false;
@@ -372,6 +373,35 @@ impl PMDPDFSerializer {
         value
     }
 
+    fn get_header_info(frontmatter: &Frontmatter) -> (String, String, String) {
+        (
+            Self::parse_pdf_string(&frontmatter["pdf-header-left"]),
+            if let result = Self::parse_pdf_string(&frontmatter["pdf-header-center"]) 
+            && !result.trim().is_empty() {
+                result
+            } else {
+                Self::parse_pdf_string(&frontmatter["pdf-header"])
+            },
+            Self::parse_pdf_string(&frontmatter["pdf-header-right"])
+        )
+    }
+
+    fn get_footer_info(frontmatter: &Frontmatter) -> (String, String, String) {
+        let bottom_left   = Self::parse_pdf_string(&frontmatter["pdf-footer-left"]  );
+        let mut bottom_center = Self::parse_pdf_string(&frontmatter["pdf-footer-center"]);
+        let bottom_right  = Self::parse_pdf_string(&frontmatter["pdf-footer-right"]  );
+        (
+            Self::parse_pdf_string(&frontmatter["pdf-footer-left"]),
+            if let result = Self::parse_pdf_string(&frontmatter["pdf-header-center"]) 
+            && !result.trim().is_empty() {
+                result
+            } else {
+                Self::parse_pdf_string(&frontmatter["pdf-header"])
+            },
+            Self::parse_pdf_string(&frontmatter["pdf-header-right"])
+        )
+    }
+
     fn parse_pdf_string(text: &Value) -> String {
         if let Some(text) = text.as_string() {
             let mut text = text.clone();
@@ -381,9 +411,8 @@ impl PMDPDFSerializer {
             text = text.replace("%page", "\"counter(page)\"");
             text = text.replace("%np", "\"counter(pages)\"");
             text = text.replace("%p",  "\"counter(page)\"");
-            if text.len() == 0 { text = "none".to_string(); }
             text
-        } else { "none".to_string() }
+        } else { String::new() }
     }
 
     /*

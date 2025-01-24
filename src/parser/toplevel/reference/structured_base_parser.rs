@@ -112,7 +112,7 @@ pub fn parse_value(text: &str) -> (String, Vec<String>) {
 
 #[cfg(test)]
 mod tests {
-    use crate::structured_base_parser::{parse_value, peek_next_token, eat_token};
+    use super::*;
 
     #[test]
     fn  peek_simple_token() {
